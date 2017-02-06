@@ -35,10 +35,12 @@ class Margo(AutotoolsPackage):
 
     depends_on('mercury', type=("build", "link", "run"))
     depends_on('argobots')
-    depends_on('cci', type=("link", "run"))
+    #depends_on('cci', type=("link", "run"))
     depends_on('abtsnoozer')
     depends_on('libev')
+    depends_on('autoconf@2.65:')
 
     def configure_args(self):
-        args = [ 'LIBS=-L%s/lib -lcci' % self.spec['cci'].prefix]
+    	args = [];
+        #args = [ 'LIBS=-L%s/lib -lcci -lrt' % self.spec['cci'].prefix]
         return args;
