@@ -40,7 +40,7 @@ class Mpich(AutotoolsPackage):
         'pmi',
         default='pmi',
         description='''PMI interface.''',
-        values=('off', 'pmi', 'pmi2', 'pmix'),
+        values=('off', 'pmi', 'pmi2', 'pmix', 'cray'),
         multi=False
     )
     variant(
@@ -66,6 +66,14 @@ spack package at this time.''',
     variant('libxml2', default=True,
             description='Use libxml2 for XML support instead of the custom '
                         'minimalistic implementation')
+
+    variant(
+        'provider',
+         default='sockets',
+         description='''For 'ofi', which provider should be used''',
+         values=('sockets', 'psm', 'psm2', 'verbs', 'usnic', 'tcp', 'udp', 'gni', 'xpmem', 'rxm', 'rxd', 'mlx', 'efa', 'mrail', 'shm'),
+         multi=False
+    )
 
     provides('mpi')
     provides('mpi@:3.0', when='@3:')
@@ -110,6 +118,7 @@ spack package at this time.''',
     depends_on('pkgconfig', type='build')
 
     depends_on('libfabric', when='netmod=ofi')
+    depends_on('libfabric fabrics=gni', when='provider=gni')
     # The ch3 ofi netmod results in crashes with libfabric 1.7
     # See https://github.com/pmodels/mpich/issues/3665
     depends_on('libfabric@:1.6', when='device=ch3 netmod=ofi')
@@ -260,6 +269,15 @@ spack package at this time.''',
             device_config += 'mxm'
         elif 'netmod=tcp' in spec:
             device_config += 'tcp'
+
+        if 'provider=sockets' in spec:
+            device_config += ':sockets'
+        elif 'provider=tcp' in spec:
+            device_config += ':tcp'
+        elif 'provider=udp' in spec:
+            device_config += ':udp'
+        elif 'provider=gni' in spec:
+            device_config += ':gni'
 
         config_args.append(device_config)
 
